@@ -10,8 +10,7 @@
 
 ; both points to the same address
 ; BIOS can use any of them
-; to avoid incompatibility:
-jmp start ; now it is: 0000:7C00(II)
+jmp start
 %Include "src\boot_loader\sectorsMenager.asm"
 start:
 	mov eax, 0
@@ -71,12 +70,29 @@ PM:
 
 	mov ebp, 0x20000
 	mov esp, ebp
+	
 ;-------------------------------------------------------------------------
-	;loading PE header
-	mov dword eax, [cs:(0x40000 + 0x18C)] ; offset to .text
-	mov dword ebx, [cs:(0x40000 + 0x188)] ; size of text
-	add eax, 0x40000 ;place where another sectors are loaded(kernel)
+	;loading PE headers
+PE_LOADER:
+	xor ebx, ebx
+	mov bx, [ds:(0x40000 + 0x86)] ; count of sections
+	.load_next_section:
+	mov eax, 0x28 ; size of each section
+	mul bx
+	mov dword esi, [cs:(0x40000 + 0x18C + eax - 0x28)] ; offset to section
+	add esi, 0x40000
+	mov dword ecx, [cs:(0x40000 + 0x188 + eax - 0x28)] ; size of section
+	mov dword edi, [cs:(0x40000 + 0x184 + eax - 0x28)] ; virtual address
+	add edi, 0x100000
+	rep movsb
+	dec bx
+	cmp bx, 0
+	jnz .load_next_section
+	mov eax, [cs:(0x40000 + 0xA8)] ; entry point 
+	add eax, 0x100000
 	jmp eax
+	jmp $
+
 ;-------------------------------------------------------------------------
 GDT32:
 	; null segment descriptor
