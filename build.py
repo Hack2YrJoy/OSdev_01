@@ -3,8 +3,12 @@ import glob
 import subprocess
 import sys
 
+if not os.path.exists("temp"):
+    os.makedirs("temp")
+if not os.path.exists("image"):
+    os.makedirs("image")
+	
 c_files = []
-
 for root, dirs, files in os.walk("src/kernel"):
     for file in files:
         if file.endswith('.c'):
@@ -22,7 +26,7 @@ subprocess.check_output("strip temp/kernel.exe", shell=True)
 bootSector = open("temp/bootsector.img","rb")
 kernel = open("temp/kernel.exe","rb")
 
-sectors = 10
+sectors = 30
 bootsector_size = os.stat("temp/bootsector.img").st_size
 if bootsector_size > 512:
 	print("SIZE OF BOOTSECTOR IS TO BIG!!!")
