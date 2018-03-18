@@ -37,6 +37,7 @@ unsigned char* hexToStr(unsigned long x) {
 		tempX /= 0x10;
 		size++;
 	}
+	if(size == 0) size = 1;
 	unsigned char *str;
 	str[size] = '\0';
 	char signs[] = "0123456789ABCDEF";
@@ -54,6 +55,7 @@ unsigned char* decToStr(unsigned long x) {
 		tempX /= 10;
 		size++;
 	}
+	if(size == 0) size = 1;
 	unsigned char *c;
 	for(int i = 0; i < size; i++) {
 		c[i] = 0x30;

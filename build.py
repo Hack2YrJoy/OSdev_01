@@ -17,7 +17,7 @@ for root, dirs, files in os.walk("src/kernel"):
 o_files = " ".join("temp/"+x for x in c_files)
 	
 for file in c_files:
-	subprocess.check_output("gcc -O0 -nostdlib -c -otemp/"+file+" src/kernel/"+file+".c", shell=True)
+	subprocess.check_output("gcc -ffreestanding -O0 -nostdlib -c -otemp/"+file+" src/kernel/"+file+".c", shell=True)
 
 subprocess.check_output("nasm -fbin -otemp/bootsector.img src/boot_loader/bootsector.asm", shell=True)
 subprocess.check_output("ld --image-base=0x100000 -o temp/kernel.exe "+o_files, shell=True)
