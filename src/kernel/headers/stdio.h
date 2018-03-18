@@ -1,8 +1,9 @@
 #pragma once
 
-struct VRAM_sign* VRAM_addr;
-struct VRAM_sign;
+unsigned int width;
+unsigned int height;
 
-void print(const char*);
+void print(const char*, unsigned int, unsigned int);
 void cls(void);
-
+unsigned char* hexToStr(unsigned long);
+unsigned char* decToStr(unsigned long);

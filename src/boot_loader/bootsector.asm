@@ -120,5 +120,5 @@ GDT_descr:
 	dd GDT32
 ;-------------------------------------------------------------------------
 	times 510-($-$$) db 0x0 ; fills file to 510+2bytes(segment size)
-	db 0xAA
-	db 0x55 ; 0xAA55 -> signature for BIOS closing BootSector(MBR)
+	db 0x55
+	db 0xAA ; 0xAA55 -> signature for BIOS closing BootSector(MBR)
