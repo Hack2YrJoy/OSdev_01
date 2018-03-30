@@ -1,19 +1,20 @@
 #include "headers\stdio.h"
+#include "headers\portIO.h"
 
 unsigned int width = 80;
 unsigned int height = 25;
 
-struct VRAM_sign {
+typedef struct VRAM_sign {
 	unsigned char sign;
 	unsigned char color;
-	};
+	} VRAM_sign;
 	
-struct VRAM_sign* pointerToVRAM(unsigned int w, unsigned int h) {
-	return (struct VRAM_sign*)((width * (h*2)) + (2*w) + 0xB8000);
+VRAM_sign* pointerToVRAM(unsigned int w, unsigned int h) {
+	return (VRAM_sign*)((width * (h*2)) + (2*w) + 0xB8000);
 }
 
-void print(const char *str, unsigned int x, unsigned int y) {
-	struct VRAM_sign* VRAM_ptr = (struct VRAM_sign*)pointerToVRAM(x,y);
+void print(const unsigned char *str, unsigned int x, unsigned int y) {
+	VRAM_sign* VRAM_ptr = (VRAM_sign*)pointerToVRAM(x,y);
 	int i = 0;
 	while(str[i] != 0x00) {
 		VRAM_ptr[i].sign = str[i];
@@ -23,14 +24,15 @@ void print(const char *str, unsigned int x, unsigned int y) {
 }
 
 void cls(void) { //clear screen
-	struct VRAM_sign* VRAM_ptr = (struct VRAM_sign*)pointerToVRAM(0,0);
-	for(int i = 0; i <= (width*height - 1); i++) { //clear screen
+	VRAM_sign* VRAM_ptr = (VRAM_sign*)pointerToVRAM(0,0);
+	for(unsigned int i = 0; i <= (width*height - 1); i++) { //clear screen
 		VRAM_ptr[i].sign = 0x00;    //nul sign
 		VRAM_ptr[i].color = 0x0f;   //black color
 	}
 }
 
 unsigned char* hexToStr(unsigned long x) {
+	unsigned char buffer[32];
 	unsigned int size = 0;
 	unsigned long tempX = x; 
 	while(tempX != 0x0) {
@@ -38,7 +40,7 @@ unsigned char* hexToStr(unsigned long x) {
 		size++;
 	}
 	if(size == 0) size = 1;
-	unsigned char *str;
+	unsigned char *str = buffer;
 	str[size] = '\0';
 	char signs[] = "0123456789ABCDEF";
 	for(int i = (size - 1); i >= 0; i--) {
@@ -49,6 +51,7 @@ unsigned char* hexToStr(unsigned long x) {
 }
 
 unsigned char* decToStr(unsigned long x) {
+	unsigned char buffer[32];
 	unsigned long tempX = x;
 	unsigned int size = 0;
 	while(tempX != 0) {
@@ -56,14 +59,22 @@ unsigned char* decToStr(unsigned long x) {
 		size++;
 	}
 	if(size == 0) size = 1;
-	unsigned char *c;
-	for(int i = 0; i < size; i++) {
+	unsigned char *c = buffer;
+	for(unsigned int i = 0; i < size; i++) {
 		c[i] = 0x30;
 	}
-	for(int i = 0; i < size; i++) {
+	for(unsigned int i = 0; i < size; i++) {
 		c[size-(i+1)] += x % 10;
 		x /= 10;
 	}
 	c[size] = '\0';
 	return c;
+}
+
+void updateCursor(unsigned int x,unsigned int y) {
+	unsigned long pos = y * width + x;
+	outw(0x3D4, 0x0F);
+	outw(0x3D5, (unsigned char)(pos & 0xFF));
+	outw(0x3D4, 0x0E);
+	outw(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
 }

@@ -92,7 +92,12 @@ PE_LOADER:
 	add eax, 0x100000
 	jmp eax
 	jmp $
-
+	
+	
+	global funkcja
+	funkcja:
+	mov eax, 0x666
+	ret
 ;-------------------------------------------------------------------------
 GDT32:
 	; null segment descriptor
