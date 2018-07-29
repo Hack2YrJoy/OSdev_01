@@ -1,26 +1,27 @@
-#include "headers\stdio.h"
-#include "headers\portIO.h"
+#include "headers/stdio.h"
+#include "headers/portIO.h"
 
 unsigned int width = 80;
 unsigned int height = 25;
 
-typedef struct VRAM_sign {
-	unsigned char sign;
-	unsigned char color;
-	} VRAM_sign;
-	
-VRAM_sign* pointerToVRAM(unsigned int w, unsigned int h) {
-	return (VRAM_sign*)((width * (h*2)) + (2*w) + 0xB8000);
+unsigned char x = 0;
+unsigned char y = 0;
+
+unsigned long pointerToVRAM(unsigned char w, unsigned char h) {
+	return ((width * (h*2)) + (2*w) + 0xB8000);
 }
 
-void print(const unsigned char *str, unsigned int x, unsigned int y) {
-	VRAM_sign* VRAM_ptr = (VRAM_sign*)pointerToVRAM(x,y);
-	int i = 0;
+void print(VRAM_sign *VRAM_ptr, const unsigned char *str) {
+	unsigned int i = 0;
 	while(str[i] != 0x00) {
 		VRAM_ptr[i].sign = str[i];
 		VRAM_ptr[i].color = 0x0f;
     	i++;
 	}
+}
+void printChar(VRAM_sign *VRAM_ptr ,const unsigned char str) {
+	VRAM_ptr[0].sign = str;
+	VRAM_ptr[0].color = 0x0f;
 }
 
 void cls(void) { //clear screen

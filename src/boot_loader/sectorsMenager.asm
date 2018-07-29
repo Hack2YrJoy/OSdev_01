@@ -1,4 +1,4 @@
-read_sectors:       ;reads sector to memory
+	read_sectors:       ;reads sector to memory
 	mov ax, 0x4000 ;read sectors to physical address 0x40000
 	mov es, ax
 	xor ax, ax

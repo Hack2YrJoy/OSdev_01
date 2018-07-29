@@ -1,13 +1,12 @@
-#include "headers\stdio.h"
+#include "headers/stdio.h"
+#include "headers/idt.h"
 
-unsigned char string[] = "this shit is only for test usage, I will destroy it later, buahahahahah!";
-void _main(void) {
-cls();
-print(hexToStr(0xdeadbeef),0, 24);
-print(decToStr(1234567),0,7);
-print(string, 0, 0);
-updateCursor(79,24);
-for(;;);
+void _main(void) { //MAIN FUNCTION starting whole fun!
+    VRAM_sign *VRAM_ptr = (VRAM_sign*)pointerToVRAM(0,0); //setting up structure pointing on terminal(still needs better concept :/)
+    cls();
+    updateCursor(79,24);  
+    initialize_idt();
+    for(;;);
 }
 
 

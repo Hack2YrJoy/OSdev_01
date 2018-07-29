@@ -11,7 +11,7 @@
 ; both points to the same address
 ; BIOS can use any of them
 jmp start
-%Include "src\boot_loader\sectorsMenager.asm"
+%Include "src/boot_loader/sectorsMenager.asm"
 start:
 	mov eax, 0
 	mov ds, ax
@@ -92,12 +92,6 @@ PE_LOADER:
 	add eax, 0x100000
 	jmp eax
 	jmp $
-	
-	
-	global funkcja
-	funkcja:
-	mov eax, 0x666
-	ret
 ;-------------------------------------------------------------------------
 GDT32:
 	; null segment descriptor
