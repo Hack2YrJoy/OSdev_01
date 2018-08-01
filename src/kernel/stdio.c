@@ -1,39 +1,63 @@
 #include "headers/stdio.h"
 #include "headers/portIO.h"
+#include "headers/terminal.h"
+#include <stdarg.h>
 
-unsigned int width = 80;
-unsigned int height = 25;
+void printf(terminal *ter, const char* str, ...) {
+	va_list args;
+	va_start(args, str);
+	while(*str != '\0') {
+		if(*str == '%') {
+			str++;
+			switch(*str) {
+				case 'h':
+				print_str(ter, hexToStr(va_arg(args, unsigned long), 0));
+				break;
 
-unsigned char x = 0;
-unsigned char y = 0;
+				case 'r': //'r' is meant to be abbreviation for "register" because it fill with zeros to 32bits value
+				print_str(ter, hexToStr(va_arg(args, unsigned long), 1));
+				break;
 
-unsigned long pointerToVRAM(unsigned char w, unsigned char h) {
-	return ((width * (h*2)) + (2*w) + 0xB8000);
-}
+				case 'H': //print captital letters hex
+				print_str(ter, HexToStr(va_arg(args, unsigned long), 0));
+				break;
 
-void print(VRAM_sign *VRAM_ptr, const unsigned char *str) {
-	unsigned int i = 0;
-	while(str[i] != 0x00) {
-		VRAM_ptr[i].sign = str[i];
-		VRAM_ptr[i].color = 0x0f;
-    	i++;
+				case 'R': //print captital letters hex
+				print_str(ter, HexToStr(va_arg(args, unsigned long), 1));
+				break;
+
+				case 'c':
+				print_char(ter, va_arg(args, int));
+				break;
+
+				case 's':
+				print_str(ter, va_arg(args, unsigned char*));
+				break;
+
+				case 'i':
+				case 'd':
+				print_str(ter, decToStr(va_arg(args, unsigned long)));
+				break;
+
+				case '%':
+				print_char(ter, '%');
+				break;
+
+				default:
+				print_char(ter, *str);
+				break;
+			}
+		}
+		else {
+			print_char(ter, *str);
+		}
+	str++;
 	}
-}
-void printChar(VRAM_sign *VRAM_ptr ,const unsigned char str) {
-	VRAM_ptr[0].sign = str;
-	VRAM_ptr[0].color = 0x0f;
+	va_end(args);
 }
 
-void cls(void) { //clear screen
-	VRAM_sign* VRAM_ptr = (VRAM_sign*)pointerToVRAM(0,0);
-	for(unsigned int i = 0; i <= (width*height - 1); i++) { //clear screen
-		VRAM_ptr[i].sign = 0x00;    //nul sign
-		VRAM_ptr[i].color = 0x0f;   //black color
-	}
-}
-
-unsigned char* hexToStr(unsigned long x) {
-	unsigned char buffer[32];
+unsigned char* hexToStr(unsigned long x, unsigned char zeros_fill) { //fills with zeros when value is other than 0
+	unsigned char buffer[9] = {0};
 	unsigned int size = 0;
 	unsigned long tempX = x; 
 	while(tempX != 0x0) {
@@ -42,40 +66,64 @@ unsigned char* hexToStr(unsigned long x) {
 	}
 	if(size == 0) size = 1;
 	unsigned char *str = buffer;
-	str[size] = '\0';
-	char signs[] = "0123456789ABCDEF";
-	for(int i = (size - 1); i >= 0; i--) {
+	str[8] = '\0';
+	char signs[] = "0123456789abcdef";
+
+	if(zeros_fill == 0) {
+		for(int i = (size - 1); i >= 0; i--) {
 		str[i] = signs[x & 0xF];
 		x >>= 4;
+		}
+	}
+
+	else {
+		for(int i = (8 - 1); i >= 0; i--) {
+		str[i] = signs[x & 0xF];
+		x >>= 4;
+		}
+	}
+	return str;
+}
+
+unsigned char* HexToStr(unsigned long x, unsigned char zeros_fill) { //fills with zeros when value is other than 0
+	unsigned char buffer[9] = {0};
+	unsigned int size = 0;
+	unsigned long tempX = x; 
+	while(tempX != 0x0) {
+		tempX /= 0x10;
+		size++;
+	}
+	if(size == 0) size = 1;
+	unsigned char *str = buffer;
+	str[8] = '\0';
+	char signs[] = "0123456789ABCDEF";
+
+	if(zeros_fill == 0) {
+		for(int i = (size - 1); i >= 0; i--) {
+		str[i] = signs[x & 0xF];
+		x >>= 4;
+		}
+	}
+	else {
+		for(int i = (8 - 1); i >= 0; i--) {
+		str[i] = signs[x & 0xF];
+		x >>= 4;
+		}
 	}
 	return str;
 }
 
 unsigned char* decToStr(unsigned long x) {
-	unsigned char buffer[32];
-	unsigned long tempX = x;
-	unsigned int size = 0;
-	while(tempX != 0) {
-		tempX /= 10;
-		size++;
+	if(x == 0) {
+		return (unsigned char*)"0";
 	}
-	if(size == 0) size = 1;
-	unsigned char *c = buffer;
-	for(unsigned int i = 0; i < size; i++) {
-		c[i] = 0x30;
-	}
-	for(unsigned int i = 0; i < size; i++) {
-		c[size-(i+1)] += x % 10;
+	unsigned char buff[14] = {0};
+	unsigned char *p = buff;
+	while(x != 0){
+		p--;
+		*p = '0'+(x % 10);
 		x /= 10;
 	}
-	c[size] = '\0';
-	return c;
+	return p;
 }
 
-void updateCursor(unsigned int x,unsigned int y) {
-	unsigned long pos = y * width + x;
-	outw(0x3D4, 0x0F);
-	outw(0x3D5, (unsigned char)(pos & 0xFF));
-	outw(0x3D4, 0x0E);
-	outw(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
-}

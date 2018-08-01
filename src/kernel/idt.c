@@ -10,9 +10,15 @@ inline void initialize_idt(void) { //setting IDT on 0x500 addr(GUARANTEED FREE B
 	lidt.base = (unsigned long)idt_ptr;
 	lidt.limit = (8*256)-1;
 	__asm__("lidt [%0]"::"m"(lidt));
+
 	for(unsigned short i = 0x20; i <= 0x2F; i++) { //sets all needed IDTs(0x20-0x2F) for PIC 8259A(Master and Slave)
 		set_idt(i, (unsigned long)&isr_wrapper, 0x8, 0b10001110); //flags(10001110) describes Interrupt gate with ring 0 privileges(kernel)
 	}
+
+	for(unsigned short i = 0; i <= 0x1F; i++) {
+		set_idt(i, (unsigned long)&trap_wrapper, 0x8, 0b10001111);
+	}
+
 	PIC_initialize(); //makes PIC works
 	__asm__ volatile ("sti"); //flag in FLAG register(x86 arch) setting Interrupt flag(makes interrupts work)
 	PIC_set_mask(0x0001); //set mask to block only system clock(IRQ0)

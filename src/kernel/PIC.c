@@ -2,6 +2,7 @@
 #include "headers/portIO.h"
 
 //8259A PIC DRIVER//
+
 void PIC_clear_ISR(void) { //used to clear ISR when EOI mode activated(unusable in AEOI)
 	outb(0x20, 0b00100000);
 	outb(0xA0, 0b00100000);
@@ -36,20 +37,26 @@ void PIC_disable_IRQ_line(unsigned char IRQ) { //takes value from 0-15 which rep
 	}
 }
 unsigned char PIC_read_IRQ_in_ISR(void) {
-	unsigned char IRQ;
+	unsigned char IRQ = 0;
 	outb(0xA0, 0b00001011);
 	unsigned char ISR_value = inb(0xA0);
-	if(ISR_value != 0) { // WHEN THERE IS INTERRUPT ON SLAVE
+	if(ISR_value != 0) { // WHEN THERE IS AN INTERRUPT ON SLAVE
     	while(ISR_value != 1) {
 			ISR_value >>= 1;
 			IRQ++;
 		}
 		return IRQ+8;
 	}
-	else { // WHEN THERE IS INTERRUPT ON MASTER
+	else {
+ /* WHEN THERE IS AN INTERRUPT ON MASTER(what is always true when interrupt is raised)
+    there is an interrupt raised on SLAVE either. It is because SLAVE is wired using IRQ2 line on MASTER.
+	So when we have interrupt raised by SLAVE than we have interrupt on MASTER either(IRQ2).
+	We have to check first SLAVE to make it correct(if statement- "ISR_value != 0"), than if we get 0, check MASTER
+	or check if on MASTER it is IRQ2 raised, than check SLAVE(if true).
+	*/ 
 		outb(0x20, 0b00001011);
 		ISR_value = inb(0x20);
-		while(ISR_value != 1) {
+		while(ISR_value != 1 && ISR_value != 0) {
 			ISR_value >>= 1;
 			IRQ++;
 		}
@@ -69,4 +76,5 @@ void PIC_initialize(void) {
 
 	outb(0x21, 0b00000001);//send ICW4 which sets PICs mode to 8086/88(MASTER)
     outb(0xA1, 0b00000001);//send ICW4 which sets PICs mode to 8086/88(SLAVE)
+
 }

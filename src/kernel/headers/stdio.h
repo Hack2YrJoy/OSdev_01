@@ -1,20 +1,7 @@
 #pragma once
+#include "terminal.h"
 
-unsigned int width;
-unsigned int height;
-
-unsigned char x;
-unsigned char y;
-
-typedef struct VRAM_sign {
-	unsigned char sign;
-	unsigned char color;
-	} VRAM_sign;
-
-void printChar(VRAM_sign *VRAM_ptr ,const unsigned char str);
-unsigned long pointerToVRAM(unsigned char w, unsigned char h);
-void print(VRAM_sign *VRAM_ptr, const unsigned char *str);
-void cls(void);
-unsigned char* hexToStr(unsigned long);
-unsigned char* decToStr(unsigned long);
-void updateCursor(unsigned int, unsigned int);
+void printf(terminal *ter, const char* str, ...);
+unsigned char* hexToStr(unsigned long x, unsigned char zeros_fill);
+unsigned char* HexToStr(unsigned long x, unsigned char zeros_fill);
+unsigned char* decToStr(unsigned long x);
