@@ -15,6 +15,8 @@ inline void initialize_idt(void) { //setting IDT on 0x500 addr(GUARANTEED FREE B
 		set_idt(i, (unsigned long)&isr_wrapper, 0x8, 0b10001110); //flags(10001110) describes Interrupt gate with ring 0 privileges(kernel)
 	}
 
+	set_idt(0x21, (unsigned long)&keyboard_wrapper, 0x8, 0b10001110);
+
 	for(unsigned short i = 0; i <= 0x1F; i++) {
 		set_idt(i, (unsigned long)&trap_wrapper, 0x8, 0b10001111);
 	}

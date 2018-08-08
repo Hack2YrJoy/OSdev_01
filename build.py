@@ -25,8 +25,8 @@ print("i686-w64-mingw32-as -c -otemp/isr_wrapper src/kernel/isr_wrapper.s")
 
 subprocess.check_output("nasm -fbin -otemp/bootsector.img src/boot_loader/bootsector.asm", shell=True)
 print("nasm -fbin -otemp/bootsector.img src/boot_loader/bootsector.asm")
-subprocess.check_output("i686-w64-mingw32-ld --image-base=0x100000 -o temp/kernel.exe temp/kernel temp/isr_wrapper "+o_files, shell=True)
-print("i686-w64-mingw32-ld -Wl --stack,0xffff --image-base=0x100000 -o temp/kernel.exe temp/kernel temp/isr_wrapper "+o_files)
+subprocess.check_output("i686-w64-mingw32-ld --stack=0xfff --image-base=0x20000 -o temp/kernel.exe temp/kernel temp/isr_wrapper "+o_files, shell=True)
+print("i686-w64-mingw32-ld --stack=0xfff --image-base=0x20000 -o temp/kernel.exe temp/kernel temp/isr_wrapper "+o_files)
 subprocess.check_output("i686-w64-mingw32-strip temp/kernel.exe", shell=True)
 print("i686-w64-mingw32-strip temp/kernel.exe")
 

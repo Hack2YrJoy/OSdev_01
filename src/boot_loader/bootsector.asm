@@ -68,30 +68,30 @@ PM:
 	mov gs, ax
 	mov ss, ax
 
-	mov ebp, 0x20000
+	mov ebp, 0x9000
 	mov esp, ebp
 	
 ;-------------------------------------------------------------------------
 	;loading PE headers
 PE_LOADER:
 	xor ebx, ebx
-	mov bx, [ds:(0x40000 + 0x86)] ; count of sections
+	mov bx, [ds:(0x10000 + 0x86)] ; count of sections
 	.load_next_section:
 	mov eax, 0x28 ; size of each section
 	mul bx
-	mov dword esi, [cs:(0x40000 + 0x18C + eax - 0x28)] ; offset to section
-	add esi, 0x40000
-	mov dword ecx, [cs:(0x40000 + 0x188 + eax - 0x28)] ; size of section
-	mov dword edi, [cs:(0x40000 + 0x184 + eax - 0x28)] ; virtual address
-	add edi, 0x100000
+	mov dword esi, [cs:(0x10000 + 0x18C + eax - 0x28)] ; offset to section
+	add esi, 0x10000
+	mov dword ecx, [cs:(0x10000 + 0x188 + eax - 0x28)] ; size of section
+	mov dword edi, [cs:(0x10000 + 0x184 + eax - 0x28)] ; virtual address
+	add edi, 0x20000
 	rep movsb
 	dec bx
 	cmp bx, 0
 	jnz .load_next_section
-	mov eax, [cs:(0x40000 + 0xA8)] ; entry point 
-	add eax, 0x100000
+	mov eax, [cs:(0x10000 + 0xA8)] ; entry point 
+	add eax, 0x20000
 	jmp eax
-	jmp $
+	jmp $ ;hope it will never get there ;) 
 ;-------------------------------------------------------------------------
 GDT32:
 	; null segment descriptor

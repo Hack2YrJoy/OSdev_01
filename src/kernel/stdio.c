@@ -3,7 +3,7 @@
 #include "headers/terminal.h"
 #include <stdarg.h>
 
-void printf(terminal *ter, const char* str, ...) {
+void printf(const char* str, ...) {
 	va_list args;
 	va_start(args, str);
 	while(*str != '\0') {
@@ -11,45 +11,45 @@ void printf(terminal *ter, const char* str, ...) {
 			str++;
 			switch(*str) {
 				case 'h':
-				print_str(ter, hexToStr(va_arg(args, unsigned long), 0));
+				print_str(hexToStr(va_arg(args, unsigned long), 0));
 				break;
 
 				case 'r': //'r' is meant to be abbreviation for "register" because it fill with zeros to 32bits value
-				print_str(ter, hexToStr(va_arg(args, unsigned long), 1));
+				print_str(hexToStr(va_arg(args, unsigned long), 1));
 				break;
 
 				case 'H': //print captital letters hex
-				print_str(ter, HexToStr(va_arg(args, unsigned long), 0));
+				print_str(HexToStr(va_arg(args, unsigned long), 0));
 				break;
 
 				case 'R': //print captital letters hex
-				print_str(ter, HexToStr(va_arg(args, unsigned long), 1));
+				print_str(HexToStr(va_arg(args, unsigned long), 1));
 				break;
 
 				case 'c':
-				print_char(ter, va_arg(args, int));
+				print_char(va_arg(args, int));
 				break;
 
 				case 's':
-				print_str(ter, va_arg(args, unsigned char*));
+				print_str(va_arg(args, unsigned char*));
 				break;
 
 				case 'i':
 				case 'd':
-				print_str(ter, decToStr(va_arg(args, unsigned long)));
+				print_str(decToStr(va_arg(args, unsigned long)));
 				break;
 
 				case '%':
-				print_char(ter, '%');
+				print_char('%');
 				break;
 
 				default:
-				print_char(ter, *str);
+				print_char(*str);
 				break;
 			}
 		}
 		else {
-			print_char(ter, *str);
+			print_char(*str);
 		}
 	str++;
 	}

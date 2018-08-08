@@ -13,6 +13,7 @@ struct registers {
 };
 
 void isr_wrapper(void);
-void _PIC_ISR(void);
+void keyboard_wrapper(void);
+void PIC_ISR(void);
 void TRAP_ISR(struct registers regs);
 void trap_wrapper(void);
